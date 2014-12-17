@@ -32,6 +32,7 @@ public class BIExtractXI3 {
 	private static IInfoStore iStore = null;
 	private static long heapFreeSize = 0;
 	private static GetBILogon mp = null;
+	private static String sCMSFile = "";
 	
 	private static void currentTime() {
 
@@ -82,173 +83,7 @@ public class BIExtractXI3 {
 		}
 	}
 	
-	/*
-	private static void getSubFolders(String iParID, String sPath) {
 		
-		String sFolds[] = new String[2];
-		IInfoObjects subFolders = null;
-		String query = "Select top " + iLimit +  " * from ci_infoobjects where si_kind ='Folder' and si_parentid = " + iParID;
-		
-		try {
-			subFolders = iStore.query(query);
-			System.out.println("Getting " + subFolders.size() + " subfolders");
-			for (int j=0;j < subFolders.size(); j++) {
-				System.out.println("Subfolder " + (j + 1) + " of " + subFolders.size());
-				IInfoObject iObj = (IInfoObject)subFolders.get(j);
-				String sFullName = sPath + "\\" + iObj.properties().getProperty("SI_NAME");
-				System.out.println("Processing Folder " + sFullName);
-				sFolds[0] = sFullName;
-				sFolds[1] = iObj.properties().getProperty("SI_ID").toString();
-				wtExcel.writeSheet("Hierarchy", sFolds);
-				getReports(iObj.properties().getProperty("SI_ID").toString(), sFullName);
-				getSubFolders(iObj.properties().getProperty("SI_ID").toString(), sFullName);
-			}
-		} catch (Exception e) {
-			System.out.println(e.toString());
-		}
-		System.out.println("Got all subfolders");
-	}
-	*/
-	
-	/*
-	private static void getInstances(String iParID, String sPath) {
-	
-		String[] rowData = new String[11];	
-		IInfoObject iObj = null;
-		
-		String query = "Select top " + iLimit +  " * from ci_infoobjects where si_instance = 1 and si_parentid = " + iParID;
-		try {
-			IInfoObjects subFolders = iStore.query(query);
-			for (int j=0;j < subFolders.size(); j++) {
-				iObj = (IInfoObject)subFolders.get(j);
-				rowData[0] = sPath;
-				rowData[1] = iObj.properties().getProperty("SI_NAME").toString().replace("%26", "&").replace("%", "|");;
-				rowData[2] = iObj.properties().getProperty("SI_KIND").toString();
-				rowData[3] = iObj.properties().getProperty("SI_ID").toString();
-				rowData[4] = iObj.properties().getProperty("SI_OWNER").toString();
-				if (iObj.properties().getProperty("SI_CREATION_TIME").getValue() != null) {
-					dtLocal.setTimeInMillis(((java.util.Date)iObj.properties().getProperty("SI_CREATION_TIME").getValue()).getTime());
-					rowData[5] = dateFormatter.format((new java.util.Date(dtLocal.getTimeInMillis())));					
-				} else {
-					rowData[5] = "";
-				}
-				if (iObj.properties().getProperty("SI_UPDATE_TS").getValue() != null) {
-					dtLocal.setTimeInMillis(((java.util.Date)iObj.properties().getProperty("SI_UPDATE_TS").getValue()).getTime());
-					rowData[6] = dateFormatter.format((new java.util.Date(dtLocal.getTimeInMillis())));				
-				} else {
-					rowData[6] = "";
-				}
-				//Not bothered about universes
-				rowData[7] = "";
-				rowData[8] = "";
-				if (iObj.properties().getProperty("SI_INSTANCE").getValue() != null) {
-					rowData[9] = iObj.properties().getProperty("SI_INSTANCE").getValue().toString();
-				} else {
-					rowData[9] = "";
-				}
-				rowData[10] = arrStatus[(int)iObj.properties().getProperty("SI_SCHEDULE_STATUS").getValue()];
-				
-				wtExcel.writeSheet(curFolder, rowData);
-			}
-		} catch (Exception e) {
-			System.out.println(sPath + " -- " + iObj.properties().getProperty("SI_NAME").toString());
-			System.out.println("GETINSTANCES  --  " + e.toString());
-		}
-
-	}
-	*/
-	
-/*
-private static void getUserReports(String sSheet, String sUserID, int sParID) {
-		
-		String[] rowData = new String[12];	
-		IInfoObject iObj = null;
-		IInfoObjects subFolders = null;
-		IWebi iRep = null;
-		String sUnvs = "";
-		Object[] oUnv = null;
-			
-		String query = "Select top " + iLimit +  " * from ci_infoobjects where si_parentid = " + sParID;
-		try {
-			subFolders = iStore.query(query);
-			System.out.println("Getting all " + subFolders.size() + " " + sSheet + " reports for " + sParID);
-			for (int j=0;j < subFolders.size(); j++) {
-				iObj = (IInfoObject)subFolders.get(j);
-				rowData[0] = sUserID;
-				rowData[11] = iObj.properties().getProperty("SI_PARENTID").toString();
-				rowData[1] = iObj.properties().getProperty("SI_NAME").toString().replace("%26", "&").replace("%", "|");
-				rowData[2] = iObj.properties().getProperty("SI_KIND").toString();
-				rowData[3] = iObj.properties().getProperty("SI_ID").toString();
-				rowData[4] = iObj.properties().getProperty("SI_OWNER").toString();
-				if (iObj.properties().getProperty("SI_CREATION_TIME").getValue() != null) {
-					dtLocal.setTimeInMillis(((java.util.Date)iObj.properties().getProperty("SI_CREATION_TIME").getValue()).getTime());
-					rowData[5] = dateFormatter.format((new java.util.Date(dtLocal.getTimeInMillis())));					
-				} else {
-					rowData[5] = "";
-				}
-				if (iObj.properties().getProperty("SI_UPDATE_TS").getValue() != null) {
-					dtLocal.setTimeInMillis(((java.util.Date)iObj.properties().getProperty("SI_UPDATE_TS").getValue()).getTime());
-					rowData[6] = dateFormatter.format((new java.util.Date(dtLocal.getTimeInMillis())));				
-				} else {
-					rowData[6] = "";
-				}
-				if (iObj.properties().getProperty("SI_INSTANCE").getValue() != null) {
-					rowData[9] = iObj.properties().getProperty("SI_INSTANCE").getValue().toString();
-				} else {
-					rowData[9] = "";
-				}
-				if (rowData[9].equals("true")) {
-					//This is an instance
-					rowData[10] = arrStatus[(int)iObj.properties().getProperty("SI_SCHEDULE_STATUS").getValue()];
-				} else {
-					rowData[10] = "";
-				}
-				
-				if (rowData[2].equals("Webi")) {
-					iRep = (IWebi)iObj;
-					sUnvs = "";
-					oUnv = iRep.getUniverses().toArray();
-					System.out.print("Getting list of " + oUnv.length + " universes ... ") ;
-					for (int z=0;z < oUnv.length;z++) {
-						if (sUnvs.equals("")){
-							sUnvs = oUnv[z].toString();
-						} else {
-							sUnvs = sUnvs + "^" + oUnv[z].toString();
-						}
-						System.out.print((z + 1) + " ");
-					}
-					rowData[7] = sUnvs;
-					System.out.println(".");
-					System.out.println("All Universes documented");
-					//now get multi source universes
-					sUnvs = "";
-					oUnv = iRep.getDSLUniverses().toArray();
-					System.out.print("Getting list of " + oUnv.length + " multi source universes ... ") ;
-					for (int z=0;z < oUnv.length;z++) {
-						if (sUnvs.equals("")){
-							sUnvs = oUnv[z].toString();
-						} else {
-							sUnvs = sUnvs + "^" + oUnv[z].toString();
-						}
-						System.out.print((z + 1) + " ");
-					}
-					rowData[8] = sUnvs;
-					System.out.println(".");
-					System.out.println("All multisource Universes documented");
-				} else {
-					rowData[7] = "";
-					rowData[8] = "";
-				}			
-				
-				wtExcel.writeSheet(sSheet, rowData);
-			}
-		} catch (Exception e) {
-			System.out.println(" -- " + iObj.properties().getProperty("SI_NAME").toString());
-			System.out.println("GETUSERREPORTS  --  " + e.toString());
-		}
-	}
-*/
-	
 private static void getAllReports() {
 		
 		String[] rowData = new String[14];	
@@ -264,27 +99,32 @@ private static void getAllReports() {
 		IFolder iFol = null;
 		IInfoObjects subFolders = null;
 		int iMaxID = 0;
+		int iFile = 0;
+		String strErr = "";
 			
 		try {
-			wtExcel.createSheet("Reports");
-			rowData[0] = "SI_PARENTID";
-			rowData[1] = "Name";
-			rowData[2] = "SI_KIND";
-			rowData[3] = "ID";
-			rowData[4] = "Owner";
-			rowData[5] = "Created";
-			rowData[6] = "Last_Updated";
-			rowData[7] = "Webi_Universes";
-			rowData[8] = "Webi_Multi_Source_Universes";
-			rowData[9] = "Instance?";
-			rowData[10] = "Schedule Status";
-			rowData[11] = "Parent_Type";
-			rowData[12] = "Folder_Path";
-			rowData[13] = "BO_System";
-			wtExcel.writeHeader("Reports", rowData);
 			
 			//Now loop processing 1,000 records at a time
 			for (;;) {
+				iFile=iFile + 1;
+				wtExcel = new WriteToExcel(sCMSFile + "_Reports_" + iFile + ".xlsx");
+				wtExcel.createSheet("Reports");
+				rowData[0] = "SI_PARENTID";
+				rowData[1] = "Name";
+				rowData[2] = "SI_KIND";
+				rowData[3] = "ID";
+				rowData[4] = "Owner";
+				rowData[5] = "Created";
+				rowData[6] = "Last_Updated";
+				rowData[7] = "Webi_Universes";
+				rowData[8] = "Webi_Multi_Source_Universes";
+				rowData[9] = "Instance?";
+				rowData[10] = "Schedule Status";
+				rowData[11] = "Parent_Type";
+				rowData[12] = "Folder_Path";
+				rowData[13] = "BO_System";
+				wtExcel.writeHeader("Reports", rowData);
+
 				query = "Select top 1000 * " 
 						+ "from ci_infoobjects where si_kind in ('CrystalReport','Webi','FullClient','MDAnalysis','LCMJob','Flash',"
 						+ "'XL.XcelsiusEnterprise','QaaWS','Pdf','Excel','Word','Powerpoint','Rtf','Txt','Shortcut','AFDashboardPage',"
@@ -377,8 +217,6 @@ private static void getAllReports() {
 						System.out.println(".");
 						System.out.println("All Universes documented");
 						rowData[8] = "";
-						System.out.println(".");
-						System.out.println("All multisource Universes documented");
 					} else {
 						rowData[7] = "";
 						rowData[8] = "";
@@ -386,6 +224,12 @@ private static void getAllReports() {
 				
 					wtExcel.writeSheet("Reports", rowData);
 					iMaxID = iObj.getID();
+				}
+				strErr = wtExcel.closeXLS();
+				if (strErr.equals("")) {
+					System.out.println("Reports XLSX closed successfully");
+				} else {
+					throw new Exception("Report XSLX not closed. " + strErr); 
 				}
 			}
 		} catch (Exception e) {
@@ -475,100 +319,6 @@ private static void getAllConnections() {
 	}
 }
 	
-/*
-	private static void getReports(String iParID, String sPath) {
-		
-		String[] rowData = new String[11];	
-		IInfoObject iObj = null;
-		IWebi iRep = null;
-		String sUnvs = "";
-		Object[] oUnv = null;
-		
-		String query = "Select top " + iLimit +  " * from ci_infoobjects where si_kind in ('CrystalReport','Webi','FullClient','MDAnalysis','LCMJob','Flash',"
-				+ "'XL.XcelsiusEnterprise','QaaWS','PDF','Excel','Word','Powerpoint','Rtf','Txt') and si_parentid = " + iParID;
-		try {
-			IInfoObjects subFolders = iStore.query(query);
-			System.out.println("Getting " + subFolders.size() + " reports");
-			for (int j=0;j < subFolders.size(); j++) {
-				iObj = (IInfoObject)subFolders.get(j);
-				System.out.println("report " + (j + 1) + " - " + iObj.properties().getProperty("SI_NAME").toString());
-				rowData[0] = sPath;
-				rowData[1] = iObj.properties().getProperty("SI_NAME").toString().replace("%26", "&").replace("%", "|");
-				rowData[2] = iObj.properties().getProperty("SI_KIND").toString();
-				rowData[3] = iObj.properties().getProperty("SI_ID").toString();
-				rowData[4] = iObj.properties().getProperty("SI_OWNER").toString();
-				if (iObj.properties().getProperty("SI_CREATION_TIME").getValue() != null) {
-					dtLocal.setTimeInMillis(((java.util.Date)iObj.properties().getProperty("SI_CREATION_TIME").getValue()).getTime());
-					rowData[5] = dateFormatter.format((new java.util.Date(dtLocal.getTimeInMillis())));					
-				} else {
-					rowData[5] = "";
-				}
-				if (iObj.properties().getProperty("SI_UPDATE_TS").getValue() != null) {
-					dtLocal.setTimeInMillis(((java.util.Date)iObj.properties().getProperty("SI_UPDATE_TS").getValue()).getTime());
-					rowData[6] = dateFormatter.format((new java.util.Date(dtLocal.getTimeInMillis())));				
-				} else {
-					rowData[6] = "";
-				}
-				if (iObj.properties().getProperty("SI_INSTANCE").getValue() != null) {
-					rowData[9] = iObj.properties().getProperty("SI_INSTANCE").getValue().toString();
-				} else {
-					rowData[9] = "";
-				}
-				if (rowData[9].equals("true")) {
-					//This is an instance
-					rowData[10] = iObj.properties().getProperty("SI_SCHEDULE_STATUS").getValue().toString();
-				} else {
-					rowData[10] = "";
-				}
-				
-				if (rowData[2].equals("Webi")) {
-					iRep = (IWebi)iObj;
-					sUnvs = "";
-					oUnv = iRep.getUniverses().toArray();
-					System.out.print("Getting list of " + oUnv.length + " universes ... ") ;
-					for (int z=0;z < oUnv.length;z++) {
-						if (sUnvs.equals("")){
-							sUnvs = oUnv[z].toString();
-						} else {
-							sUnvs = sUnvs + "^" + oUnv[z].toString();
-						}
-						System.out.print((z + 1) + " ");
-					}
-					rowData[7] = sUnvs;
-					System.out.println(".");
-					System.out.println("All Universes documented");
-					//now get multi source universes
-					sUnvs = "";
-					oUnv = iRep.getDSLUniverses().toArray();
-					System.out.print("Getting list of " + oUnv.length + " multi source universes ... ") ;
-					for (int z=0;z < oUnv.length;z++) {
-						if (sUnvs.equals("")){
-							sUnvs = oUnv[z].toString();
-						} else {
-							sUnvs = sUnvs + "^" + oUnv[z].toString();
-						}
-						System.out.print((z + 1) + " ");
-					}
-					rowData[8] = sUnvs;
-					System.out.println(".");
-					System.out.println("All multisource Universes documented");
-				} else {
-					rowData[7] = "";
-					rowData[8] = "";
-				}			
-				
-				wtExcel.writeSheet(curFolder, rowData);
-				if ((int)iObj.properties().getProperty("SI_CHILDREN").getValue() > 0) {
-					getInstances(iObj.properties().getProperty("SI_ID").toString() , sPath);
-				}
-			}
-		} catch (Exception e) {
-			System.out.println(sPath + " -- " + iObj.properties().getProperty("SI_NAME").toString());
-			System.out.println("GETREPORTS  --  " + e.toString());
-		}
-	}	
-	*/
-
 	public static void main(String[] args) {
 
 		IEnterpriseSession enterpriseSession = null;
@@ -589,13 +339,9 @@ private static void getAllConnections() {
 		PrintStream ps;
 		
 		String sSQL = "";
-		//String sFolderID = "";
-		//String sFolders[] = new String[2];
 		String sUsers[] = new String[7];
 		String sUniverses[] = new String[10];
 		String sUnvRep[] = new String[3];
-		//String[] repData = new String[11];
-		//String[] rowHdr = new String[13];
 		String strErr = "";
 		Integer iUsr = 1;
 		
@@ -607,7 +353,8 @@ private static void getAllConnections() {
 		if (ii == 0) {
 			
 			try {
-				file = new File(mp.strCMS + ".txt");
+				sCMSFile = mp.strCMS.replace(":", "_");
+				file = new File(sCMSFile + ".txt");
 		        if (file.exists()) {
 		        	file.delete();
 		        }
@@ -624,8 +371,6 @@ private static void getAllConnections() {
 				frame.setVisible(true);
 				frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 				
-				wtExcel = new WriteToExcel(mp.strCMS + "_Reports.xlsx");
-				
 				System.out.println("Connecting...");
 				sessionMgr = CrystalEnterprise.getSessionMgr();
 				//enterpriseSession = sessionMgr.logon("Administrator", "W3dnesday", "WIN-250D8MB2MOL", "secEnterprise");
@@ -634,39 +379,6 @@ private static void getAllConnections() {
 				currentTime();
 				
 				iStore = (IInfoStore)enterpriseSession.getService("", "InfoStore");
-				//sSQL = "select top " + iLimit +  " si_id, si_name, si_parentid, si_ancestor from ci_infoobjects where si_kind = 'Folder' and si_parentid = 23";
-				//iObjects = iStore.query(sSQL);
-				//wtExcel.createSheet("Hierarchy");
-				//sFolders[0] = "Path";
-				//sFolders[1] = "ID";
-				//wtExcel.writeHeader("Hierarchy", sFolders);
-				//for (int i=0;i < iObjects.size(); i++)
-            		//{
-					//getHeap();
-					//iObject = (IInfoObject)iObjects.get(i);
-					//iProps = iObject.properties();
-					//sFolderID = iProps.getProperty("SI_NAME").toString();  
-					//wtExcel.createSheet(sFolderID);
-					//repData[0] = "Path";
-					//repData[1] = "Name";
-					//repData[2] = "SI_KIND";
-					//repData[3] = "ID";
-					//repData[4] = "Owner";
-					//repData[5] = "Created";
-					//repData[6] = "Updated";
-					//repData[7] = "Webi Universes";
-					//repData[8] = "Webi Multi Source Universes";
-					//repData[9] = "Instance?";
-					//repData[10] = "Schedule Status";
-					//wtExcel.writeHeader(sFolderID, repData);				
-					//curFolder = iProps.getProperty("SI_NAME").toString();
-					//System.out.println("Processing high level folder " + curFolder);
-					//sFolders[0] = sFolderID;
-					//sFolders[1] = iProps.getProperty("SI_ID").toString();
-					//wtExcel.writeSheet("Hierarchy", sFolders);
-					//getReports(iProps.getProperty("SI_ID").toString(), iProps.getProperty("SI_NAME").toString());					
-					//getSubFolders(iProps.getProperty("SI_ID").toString(), iProps.getProperty("SI_NAME").toString());
-            	//}
 				getHeap();
 				System.out.println("Getting all reports");
 				currentTime();
@@ -674,15 +386,9 @@ private static void getAllConnections() {
 				System.out.println("Got all reports");
 				getHeap();
 				currentTime();
-				strErr = wtExcel.closeXLS();
-				if (strErr.equals("")) {
-					System.out.println("Reports XLSX closed successfully");
-				} else {
-					throw new Exception("Report XSLX not closed. " + strErr); 
-				}
 				
 				//USERS
-				wtExcel = new WriteToExcel(mp.strCMS + "_Users.xlsx");
+				wtExcel = new WriteToExcel(sCMSFile + "_Users.xlsx");
 				wtExcel.createSheet("Users");
 				sUsers[0] = "ID";
 				sUsers[1] = "CUID";
@@ -693,22 +399,6 @@ private static void getAllConnections() {
 				sUsers[6] = "BO_System";
 				wtExcel.writeHeader("Users", sUsers);
 				
-				/* rowHdr[0] = "Folder Owner ID";
-				rowHdr[11] = "SI_PARENTID";
-				rowHdr[1] = "Name";
-				rowHdr[2] = "SI_KIND";
-				rowHdr[3] = "ID";
-				rowHdr[4] = "Owner";
-				rowHdr[5] = "Created";
-				rowHdr[6] = "Last Updated";
-				rowHdr[7] = "Webi Universes";
-				rowHdr[8] = "Webi Multi Source Universes";
-				rowHdr[9] = "Instance?";
-				rowHdr[10] = "Schedule Status";
-				wtExcel.createSheet("Inboxes");
-				wtExcel.writeHeader("Inboxes", rowHdr);
-				wtExcel.createSheet("Favourites");
-				wtExcel.writeHeader("Favourites", rowHdr); */
 				sSQL = "SELECT top " + iLimit +  " SI_ID FROM CI_SYSTEMOBJECTS WHERE SI_KIND='User'";
 				iObjects = iStore.query(sSQL);
 				System.out.println(iObjects.size() + " users found");
@@ -750,25 +440,7 @@ private static void getAllConnections() {
 									} else {
 										sGrps = sGrps + "^" + memberGroups[itt].toString();
 									}
-									// Retrieve each group from the infoStore. 
-									//IInfoObjects result = iStore.query ("SELECT top " + iLimit +  " * FROM CI_SYSTEMOBJECTS WHERE SI_ID=" + memberGroups[itt]);
-									//if (result.size() == 0) {
-									//	if (sGrps.equals("")) {
-									//		sGrps = "Could not find group with ID = " + memberGroups[itt];
-									//	} else {
-									//		sGrps = sGrps + "^" + "Could not find group with ID = " + memberGroups[itt];
-									//	}
-									//} else {
-									//	IInfoObject iObject2 = (IInfoObject) result.get(0); 
-									//	if (sGrps.equals("")) {
-									//		sGrps = iObject2.getTitle();
-									//	} else {
-									//		sGrps = sGrps + "^" + iObject2.getTitle();
-									//	}
-									//}
 								}
-								//getUserReports("Inboxes", iObjectProps.getProperty("SI_ID").toString(), boxiUser.getInboxID());
-								//getUserReports("Favourites", iObjectProps.getProperty("SI_ID").toString(), boxiUser.getFavoritesFolderID());
 							} else {
 								sGrps = "No groups available"; 
 							}
@@ -789,7 +461,7 @@ private static void getAllConnections() {
 				getHeap();
 				currentTime();
 				//UNIVERSES
-				wtExcel = new WriteToExcel(mp.strCMS + "_Universes.xlsx");
+				wtExcel = new WriteToExcel(sCMSFile + "_Universes.xlsx");
 				wtExcel.createSheet("Universes");
 				sUniverses[0] = "CUID";
 				sUniverses[1] = "Name";
@@ -860,21 +532,6 @@ private static void getAllConnections() {
 							} else {
 								sGrps = sGrps + "^" + oUnv[itt].toString();
 							}
-							/* IInfoObjects result = iStore.query ("SELECT top " + iLimit +  " * FROM CI_APPOBJECTS WHERE SI_ID=" + oUnv[itt]);
-							if (result.size() == 0) {
-								if (sGrps.equals("")) {
-									sGrps = "Could not find connection with ID = " + oUnv[itt];
-								} else {
-									sGrps = sGrps + "^" + "Could not find connection with ID = " + oUnv[itt];
-								}
-							} else {
-								IInfoObject iObject2 = (IInfoObject) result.get(0); 
-								if (sGrps.equals("")) {
-									sGrps = iObject2.getTitle() + "(" + oUnv[itt].toString() + ")";
-								} else {
-									sGrps = sGrps + "^" + iObject2.getTitle() + "(" + oUnv[itt].toString() + ")";
-								}
-							} */
 							System.out.println("done " + itt);
 						}
 						sUniverses[6] = sGrps;
@@ -925,7 +582,7 @@ private static void getAllConnections() {
 					throw new Exception("Universes XSLX not closed. " + strErr); 
 				}
 				
-				wtExcel = new WriteToExcel(mp.strCMS + "_Others.xlsx");
+				wtExcel = new WriteToExcel(sCMSFile + "_Others.xlsx");
 				//listRootFolder("19","Users","ci_systemobjects");
 				getHeap();
 				currentTime();
