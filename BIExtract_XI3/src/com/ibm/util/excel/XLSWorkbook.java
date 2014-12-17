@@ -13,12 +13,12 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.File;
 
-public class WriteToExcel {
+public class XLSWorkbook {
 	
 	private static Workbook xlsFile = null;
 	private static String fileN = "";
 	
-	public WriteToExcel (String fileToWrite) {
+	public XLSWorkbook (String fileToWrite) {
         File fileH = new File(fileToWrite);
         if (fileH.exists()) {
         	fileH.delete();
