@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7"/>
+	<classpathentry exported="true" kind="lib" path="C:/JARS/poi-3.10.1/ooxml-lib/dom4j-1.6.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="C:/JARS/poi-3.10.1/ooxml-lib/stax-api-1.0.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="C:/JARS/poi-3.10.1/ooxml-lib/xmlbeans-2.6.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="C:/JARS/poi-3.10.1/poi-3.10.1-20140818.jar"/>
+	<classpathentry exported="true" kind="lib" path="C:/JARS/poi-3.10.1/poi-ooxml-3.10.1-20140818.jar"/>
+	<classpathentry exported="true" kind="lib" path="C:/JARS/poi-3.10.1/poi-ooxml-schemas-3.10.1-20140818.jar"/>
+	<classpathentry kind="lib" path="C:/JARS/XI3/biarengine.jar"/>
+	<classpathentry kind="lib" path="C:/JARS/XI3/biplugins.jar"/>
+	<classpathentry kind="lib" path="C:/JARS/XI3/boconfig.jar"/>
+	<classpathentry kind="lib" path="C:/JARS/XI3/cecore.jar"/>
+	<classpathentry kind="lib" path="C:/JARS/XI3/celib.jar"/>
+	<classpathentry kind="lib" path="C:/JARS/XI3/ceplugins_core.jar"/>
+	<classpathentry kind="lib" path="C:/JARS/XI3/cesdk.jar"/>
+	<classpathentry kind="lib" path="C:/JARS/XI3/cesession.jar"/>
+	<classpathentry kind="lib" path="C:/JARS/XI3/corbaidl.jar"/>
+	<classpathentry kind="lib" path="C:/JARS/XI3/ebus405.jar"/>
+	<classpathentry kind="lib" path="C:/JARS/XI3/jtools.jar"/>
+	<classpathentry kind="lib" path="C:/JARS/XI3/logging.jar"/>
+	<classpathentry kind="lib" path="C:/JARS/XI3/rebean.jar"/>
+	<classpathentry kind="lib" path="C:/JARS/XI3/rebean.wi.jar"/>
+	<classpathentry kind="lib" path="C:/JARS/XI3/SL_plugins.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
