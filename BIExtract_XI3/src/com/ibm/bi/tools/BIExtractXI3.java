@@ -14,7 +14,7 @@ import com.crystaldecisions.sdk.framework.*;
 import com.crystaldecisions.sdk.properties.*;
 import com.crystaldecisions.sdk.occa.infostore.*;
 import com.crystaldecisions.sdk.plugin.desktop.user.*;
-//import com.ibm.sapbi.logon.*;
+
 import com.ibm.util.excel.*;
 import com.businessobjects.sdk.plugin.desktop.webi.*;
 import com.businessobjects.sdk.plugin.desktop.universe.*;
@@ -63,7 +63,7 @@ public class BIExtractXI3 {
 			sFolds[0] = "ID";
 			sFolds[1] = "Name";
 			sFolds[2] = "Description";
-			sFolds[3] = "Ownder_ID";
+			sFolds[3] = "Owner_ID";
 			sFolds[4] = "Owner";
 			sFolds[5] = "BO_System";
 			wtExcel.writeHeader(sSheet, sFolds);
@@ -87,10 +87,10 @@ public class BIExtractXI3 {
 private static void getAllReports() {
 		
 		String[] rowData = new String[14];	
+		String[] unvData = new String[3];
 		IInfoObject iObj = null;
 		IInfoObject iObj2 = null;
 		IWebi iRep = null;
-		String sUnvs = "";
 		Object[] oUnv = null;
 		String query = "";
 		String query2 = "";
@@ -125,6 +125,12 @@ private static void getAllReports() {
 				rowData[13] = "BO_System";
 				wtExcel.writeHeader("Reports", rowData);
 
+				wtExcel.createSheet("Universes");
+				unvData[0] = "Report_ID";
+				unvData[1] = "Universe_ID";
+				unvData[2] = "BO_System";
+				wtExcel.writeHeader("Universes", unvData);
+
 				query = "Select top 1000 * " 
 						+ "from ci_infoobjects where si_kind in ('CrystalReport','Webi','FullClient','MDAnalysis','LCMJob','Flash',"
 						+ "'XL.XcelsiusEnterprise','QaaWS','Pdf','Excel','Word','Powerpoint','Rtf','Txt','Shortcut','AFDashboardPage',"
@@ -135,10 +141,9 @@ private static void getAllReports() {
 					//Finished
 					break;
 				}
-				System.out.println("Getting " + subFolders.size() + " reports (> " + iMaxID + ")");
+				System.out.println("Writing file " + iFile + " with " + subFolders.size() + " reports (> " + iMaxID + ")");
 				System.out.println("Using " + query);
 				for (int j=0;j < subFolders.size(); j++) {
-					System.out.println("Report " + (j + 1) + " of " + subFolders.size());
 					iObj = (IInfoObject)subFolders.get(j);
 					rowData[0] = iObj.properties().getProperty("SI_PARENTID").toString();
 					rowData[1] = iObj.properties().getProperty("SI_NAME").toString().replace("%26", "&").replace("%", "|");
@@ -202,20 +207,16 @@ private static void getAllReports() {
 					}
 					if (rowData[2].equals("Webi")) {
 						iRep = (IWebi)iObj;
-						sUnvs = "";
 						oUnv = iRep.getUniverses().toArray();
-						System.out.print("Getting list of " + oUnv.length + " universes ... ") ;
+
+						//write universes to UNIVERSES tab
 						for (int z=0;z < oUnv.length;z++) {
-							if (sUnvs.equals("")){
-								sUnvs = oUnv[z].toString();
-							} else {
-								sUnvs = sUnvs + "^" + oUnv[z].toString();
-							}
-							System.out.print((z + 1) + " ");
+							unvData[0] = rowData[3];
+							unvData[1] = oUnv[z].toString();
+							unvData[2] = mp.strCMS;
+							wtExcel.writeSheet("Universes", unvData);
 						}
-						rowData[7] = sUnvs;
-						System.out.println(".");
-						System.out.println("All Universes documented");
+						rowData[7] = oUnv.length + " Universes";
 						rowData[8] = "";
 					} else {
 						rowData[7] = "";
@@ -342,6 +343,8 @@ private static void getAllConnections() {
 		String sUsers[] = new String[7];
 		String sUniverses[] = new String[10];
 		String sUnvRep[] = new String[3];
+		String sUserGrp[] = new String[3];
+		String sUnvConn[] = new String[3];
 		String strErr = "";
 		Integer iUsr = 1;
 		
@@ -398,6 +401,11 @@ private static void getAllConnections() {
 				sUsers[5] = "User_Groups";
 				sUsers[6] = "BO_System";
 				wtExcel.writeHeader("Users", sUsers);
+				wtExcel.createSheet("Groups");
+				sUserGrp[0] = "User_ID";
+				sUserGrp[1] = "Group_ID";
+				sUserGrp[2] = "BO_System";
+				wtExcel.writeHeader("Groups", sUserGrp);
 				
 				sSQL = "SELECT top " + iLimit +  " SI_ID FROM CI_SYSTEMOBJECTS WHERE SI_KIND='User'";
 				iObjects = iStore.query(sSQL);
@@ -432,15 +440,15 @@ private static void getAllConnections() {
 							}
 							if (iObjectPropVal.equals("User"))  {
 								IUser boxiUser = (IUser)iObjU; 
-								// Obtain the set of groups which the user belongs to. 
+								// Obtain the set of groups which the user belongs to.
 								Object[] memberGroups = boxiUser.getGroups().toArray();
 								for (int itt = 0; itt < memberGroups.length; itt++) { 
-									if (sGrps.equalsIgnoreCase("")) {
-										sGrps = memberGroups[itt].toString();
-									} else {
-										sGrps = sGrps + "^" + memberGroups[itt].toString();
-									}
+									sUserGrp[0] = sUsers[0];
+									sUserGrp[1] = memberGroups[itt].toString();
+									sUserGrp[2] = mp.strCMS;
+									wtExcel.writeSheet("Groups", sUserGrp);
 								}
+								sGrps = memberGroups.length + " Groups";
 							} else {
 								sGrps = "No groups available"; 
 							}
@@ -479,6 +487,11 @@ private static void getAllConnections() {
 				sUnvRep[1] = "Report_ID";
 				sUnvRep[2] = "BO_System";
 				wtExcel.writeHeader("Universe Reports", sUnvRep);
+				wtExcel.createSheet("Universe Connections");
+				sUnvConn[0] = "Universe_ID";
+				sUnvConn[1] = "Conn_ID";
+				sUnvConn[2] = "BO_System";
+				wtExcel.writeHeader("Universe Connections", sUnvConn);
 				sSQL = "Select top " + iLimit +  " * FROM CI_APPOBJECTS WHERE SI_KIND in ('Universe','DSL.MetaDataFile')";
 				iObjects = iStore.query(sSQL);
 				System.out.println("Found " + iObjects.size() + " universes");
@@ -490,28 +503,21 @@ private static void getAllConnections() {
 					} else {
 						bUnx = true;
 					}
-					System.out.print(iProps.getProperty("SI_KIND").toString() + "(" + iProps.getProperty("SI_ID").toString() + ") universe " + i + " ... ");
-					System.out.println(" GOT PROPERTIES");
 					sUniverses[0] = iProps.getProperty("SI_CUID").toString();  
-					System.out.print("SI_CUID  ");
 					sUniverses[1] = iProps.getProperty("SI_NAME").toString();
-					System.out.print("SI_NAME  ");
 					if (iProps.getProperty("SI_UPDATE_TS") == null) {
 						sUniverses[2] = "";
 						System.out.print("SI_UPDATE_TS IS NULL  ");
 					} else {
 						dtLocal.setTimeInMillis(((java.util.Date)iProps.getProperty("SI_UPDATE_TS").getValue()).getTime());
 						sUniverses[2] = dateFormatter.format((new java.util.Date(dtLocal.getTimeInMillis())));
-						System.out.print("SI_UPDATE_TS  ");
 					}
 					if (iProps.getProperty("SI_REVISIONNUM") == null) {
 						sUniverses[3] = "";
 					} else {
 						sUniverses[3] = iProps.getProperty("SI_REVISIONNUM").toString();
 					}
-					System.out.print("SI_REVISIONNUM  ");
 					sUniverses[4] = iProps.getProperty("SI_DESCRIPTION").toString();
-					System.out.print("SI_DESCRIPTION  ");
 					sUniverses[5] = iProps.getProperty("SI_OWNER").toString();
 					sUniverses[7] = iProps.getProperty("SI_ID").toString();
 					sUniverses[8] = iProps.getProperty("SI_KIND").toString();
@@ -524,21 +530,14 @@ private static void getAllConnections() {
 						iUnv = (IUniverse)iObject;
 						Object[] oUnv = iUnv.getDataConnections().toArray();
 						sGrps = "";
-						System.out.println(i + " has " + oUnv.length);
 						for (int itt = 0; itt < oUnv.length; itt++) { 
-							System.out.println("doing -- " + itt);
-							if (sGrps.equals("")) {
-								sGrps = oUnv[itt].toString();
-							} else {
-								sGrps = sGrps + "^" + oUnv[itt].toString();
-							}
-							System.out.println("done " + itt);
+							sUnvConn[0] = sUniverses[7];
+							sUnvConn[1] = oUnv[itt].toString();
+							sUnvConn[2] = mp.strCMS;
+							wtExcel.writeSheet("Universe Connections", sUnvConn);
 						}
-						sUniverses[6] = sGrps;
-						System.out.println(i);
+						sUniverses[6] = oUnv.length + " connections";
 						wtExcel.writeSheet("Universes", sUniverses);
-						System.out.println(i + " reports");
-						//xxxxx xmust be here
 					
 						if (iUnv.getWebis() == null) {
 							System.out.println("iUnv is NULL");
@@ -549,12 +548,9 @@ private static void getAllConnections() {
 						} else {			
 							sUnvRep[0] = sUniverses[7];
 							sUnvRep[2] = mp.strCMS;
-							System.out.println("Found " + oURep.length + " reports for universe");
 							for (int itt = 0; itt < oURep.length; itt++) {
-								System.out.print(itt + "....");
 								sUnvRep[1] = "" + oURep[itt];
 								wtExcel.writeSheet("Universe Reports", sUnvRep);
-								System.out.println("WRITTEN");
 							}
 						}
 					} else {
