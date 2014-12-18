@@ -14,16 +14,15 @@ import com.crystaldecisions.sdk.framework.*;
 import com.crystaldecisions.sdk.properties.*;
 import com.crystaldecisions.sdk.occa.infostore.*;
 import com.crystaldecisions.sdk.plugin.desktop.user.*;
-//import com.ibm.sapbi.logon.*;
 import com.ibm.util.excel.*;
 import com.businessobjects.sdk.plugin.desktop.webi.*;
 import com.businessobjects.sdk.plugin.desktop.universe.*;
 import com.crystaldecisions.sdk.plugin.desktop.folder.*;
 
+
 public class BIExtractXI3 {
 	
-	private static WriteToExcel wtExcel;
-	//private static String curFolder = "";
+	private static XLSWorkbook wtExcel;
 	private static Calendar dtLocal = new GregorianCalendar();
 	private static SimpleDateFormat dateFormatter = new SimpleDateFormat("dd-MMM-yyyy HH:mm:ss");
 	private static int iLimit = 100000;
@@ -31,8 +30,8 @@ public class BIExtractXI3 {
 	private static String[] arrStatus = {"Running","Complete","2","Failure","4","5","6","7","Paused","Pending"};
 	private static IInfoStore iStore = null;
 	private static long heapFreeSize = 0;
-	private static GetBILogon mp = null;
 	private static String sCMSFile = "";
+	private static GetBILogon mp = null;
 	
 	private static void currentTime() {
 
@@ -46,6 +45,17 @@ public class BIExtractXI3 {
 	private static void msgbox(String sTitle, String s, int iType){
 		   JOptionPane.showMessageDialog(null, s, sTitle, iType);
 		}
+	
+	private static void showExtract() {
+		
+		frame = new JFrame("IBM SAP BI Tool");
+		frame.setSize(400, 200);
+		frame.setLocation(300, 300);
+		frame.add(new JLabel("Extracting Data Please Wait ..."));
+		frame.setVisible(true);
+		frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+		
+	}
 	
 	private static void getHeap() {
 		heapFreeSize = Runtime.getRuntime().freeMemory();
@@ -107,7 +117,7 @@ private static void getAllReports() {
 			//Now loop processing 1,000 records at a time
 			for (;;) {
 				iFile=iFile + 1;
-				wtExcel = new WriteToExcel(sCMSFile + "_Reports_" + iFile + ".xlsx");
+				wtExcel = new XLSWorkbook(sCMSFile + "_Reports_" + iFile + ".xlsx");
 				wtExcel.createSheet("Reports");
 				rowData[0] = "SI_PARENTID";
 				rowData[1] = "Name";
@@ -334,42 +344,40 @@ private static void getAllConnections() {
 		Boolean bUnx = false;
 		ISessionMgr sessionMgr = null;
 		
-		File file;;
-		FileOutputStream fos;
-		PrintStream ps;
-		
 		String sSQL = "";
 		String sUsers[] = new String[7];
 		String sUniverses[] = new String[10];
 		String sUnvRep[] = new String[3];
 		String strErr = "";
 		Integer iUsr = 1;
-		
-		getHeap();
+		Boolean bDebug = true;
 		
 		mp = new GetBILogon();
 		int ii = mp.getUserName();
 		
 		if (ii == 0) {
 			
-			try {
+			try {		
+				File file;;
+				FileOutputStream fos;
+				PrintStream ps;
+				
 				sCMSFile = mp.strCMS.replace(":", "_");
 				file = new File(sCMSFile + ".txt");
 		        if (file.exists()) {
 		        	file.delete();
 		        }
-				fos = new FileOutputStream(file);
-				ps = new PrintStream(fos);
-				System.setOut(ps);
+		        
+		        if (bDebug) {
+		        	fos = new FileOutputStream(file);
+		        	ps = new PrintStream(fos);
+		        	System.setOut(ps);
+		        }
 				
+				getHeap();
 				currentTime();
 				
-				frame = new JFrame("IBM SAP BI Tool");
-				frame.setSize(400, 200);
-				frame.setLocation(300, 300);
-				frame.add(new JLabel("Extracting Data Please Wait ..."));
-				frame.setVisible(true);
-				frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+				showExtract();				
 				
 				System.out.println("Connecting...");
 				sessionMgr = CrystalEnterprise.getSessionMgr();
@@ -388,7 +396,7 @@ private static void getAllConnections() {
 				currentTime();
 				
 				//USERS
-				wtExcel = new WriteToExcel(sCMSFile + "_Users.xlsx");
+				wtExcel = new XLSWorkbook(sCMSFile + "_Users.xlsx");
 				wtExcel.createSheet("Users");
 				sUsers[0] = "ID";
 				sUsers[1] = "CUID";
@@ -461,7 +469,7 @@ private static void getAllConnections() {
 				getHeap();
 				currentTime();
 				//UNIVERSES
-				wtExcel = new WriteToExcel(sCMSFile + "_Universes.xlsx");
+				wtExcel = new XLSWorkbook(sCMSFile + "_Universes.xlsx");
 				wtExcel.createSheet("Universes");
 				sUniverses[0] = "CUID";
 				sUniverses[1] = "Name";
@@ -582,7 +590,7 @@ private static void getAllConnections() {
 					throw new Exception("Universes XSLX not closed. " + strErr); 
 				}
 				
-				wtExcel = new WriteToExcel(sCMSFile + "_Others.xlsx");
+				wtExcel = new XLSWorkbook(sCMSFile + "_Others.xlsx");
 				//listRootFolder("19","Users","ci_systemobjects");
 				getHeap();
 				currentTime();
