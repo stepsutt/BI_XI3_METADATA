@@ -410,11 +410,10 @@ private static void getAllConnections() {
 				sSQL = "SELECT top " + iLimit +  " SI_ID FROM CI_SYSTEMOBJECTS WHERE SI_KIND='User'";
 				iObjects = iStore.query(sSQL);
 				System.out.println(iObjects.size() + " users found");
+				getHeap();
 				if (iObjects.getResultSize() > 0) {
 					Iterator i = iObjects.iterator();
 					while (i.hasNext()) {
-						getHeap();
-						System.out.println("User " + iUsr + " of " + iObjects.size());
 						sGrps = "";
 						iObject = (IInfoObject) i.next(); 
 						useridint = iObject.getID(); 
@@ -468,6 +467,7 @@ private static void getAllConnections() {
 				
 				getHeap();
 				currentTime();
+				
 				//UNIVERSES
 				wtExcel = new WriteToExcel(sCMSFile + "_Universes.xlsx");
 				wtExcel.createSheet("Universes");
@@ -522,8 +522,6 @@ private static void getAllConnections() {
 					sUniverses[7] = iProps.getProperty("SI_ID").toString();
 					sUniverses[8] = iProps.getProperty("SI_KIND").toString();
 					sUniverses[9] = mp.strCMS;
-					System.out.println("SI_OWNER");
-					System.out.println("About to get Connections");
 					
 					if (!bUnx) {
 						getHeap();
@@ -544,7 +542,7 @@ private static void getAllConnections() {
 						} 
 						Object[] oURep = iUnv.getWebis().toArray();
 						if (oURep == null) {
-							System.out.println("getWedis is NULL");
+							System.out.println("getWebis is NULL");
 						} else {			
 							sUnvRep[0] = sUniverses[7];
 							sUnvRep[2] = mp.strCMS;
