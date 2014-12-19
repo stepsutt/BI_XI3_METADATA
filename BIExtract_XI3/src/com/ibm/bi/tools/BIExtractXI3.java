@@ -245,7 +245,9 @@ private static void getAllConnections() {
 	IInfoObject iObj = null;
 	IInfoObjects subFolders = null;
 		
-	String query = "Select top " + iLimit +  " * from ci_appobjects where si_kind in ('CommonConnection', 'DFS.ConnectorConfiguration','DataFederator.DataSource','CCIS.DataConnection')";
+	String query = "Select top " + iLimit +  " * from ci_appobjects where si_kind in ('CommonConnection', "
+			+ "'DFS.ConnectorConfiguration','DataFederator.DataSource','CCIS.DataConnection'," 
+			+ "'MetaData.DataConnection','Connection')";
 	try {
 		wtExcel.createSheet("All Connections");
 		rowData[0] = "SI_ID";
